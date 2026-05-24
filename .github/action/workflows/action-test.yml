@@ -1,0 +1,70 @@
+name: Action self-test
+
+# Verifies the GitHub Action wrapper works end-to-end by running it
+# against this repo. If the action breaks, this catches it before
+# users see a broken release.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'action/**'
+      - 'core/**'
+      - 'cli/**'
+      - 'pyproject.toml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'action/**'
+      - 'core/**'
+      - 'cli/**'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+jobs:
+  test-action:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read   # we don't commit anything in self-test
+    steps:
+      - uses: actions/checkout@v4
+
+      # Run the action from the current checkout, not from the
+      # published release — so we test the code being changed.
+      - name: Test stats bot (repo scope)
+        uses: ./action
+        with:
+          bot: stats
+          scope: repo
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
+          output: /tmp/test-repo-stats.svg
+
+      - name: Test stats bot (user scope)
+        uses: ./action
+        with:
+          bot: stats
+          scope: user
+          username: ${{ github.repository_owner }}
+          output: /tmp/test-user-stats.svg
+
+      - name: Verify outputs exist
+        run: |
+          if [[ ! -s /tmp/test-repo-stats.svg ]]; then
+            echo "error: repo stats SVG is empty or missing"
+            exit 1
+          fi
+          if [[ ! -s /tmp/test-user-stats.svg ]]; then
+            echo "error: user stats SVG is empty or missing"
+            exit 1
+          fi
+          echo "both SVGs generated successfully"
+          wc -l /tmp/test-repo-stats.svg /tmp/test-user-stats.svg
+
+      - name: Verify SVG is well-formed
+        run: |
+          for f in /tmp/test-repo-stats.svg /tmp/test-user-stats.svg; do
+            head -1 "$f" | grep -q '<svg' || { echo "error: $f doesn't start with <svg"; exit 1; }
+            tail -1 "$f" | grep -q '</svg>' || { echo "error: $f doesn't end with </svg>"; exit 1; }
+          done
+          echo "SVGs are structurally valid"

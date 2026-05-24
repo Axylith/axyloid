@@ -1,0 +1,83 @@
+name: Deploy to Cloud Run
+
+# Builds and deploys the server to Cloud Run on release tags.
+# Tag a release (v0.1.0, v0.2.0, etc.) to trigger a deploy.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to deploy (e.g. v0.1.0)'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write   # for Google Cloud Workload Identity Federation
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Authenticate to GCP using Workload Identity Federation.
+      # No service account JSON files in CI — this is the secure path.
+      # Requires one-time setup; see deploy/setup-workload-identity.md
+      - name: Authenticate to Google Cloud
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SA }}
+
+      - name: Set up gcloud
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy axyloid-bots \
+            --source . \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --region us-central1 \
+            --platform managed \
+            --allow-unauthenticated \
+            --memory 512Mi \
+            --cpu 1 \
+            --timeout 60 \
+            --concurrency 80 \
+            --max-instances 5 \
+            --min-instances 0 \
+            --set-secrets "GITHUB_APP_ID=github-app-id:latest,GITHUB_WEBHOOK_SECRET=github-webhook-secret:latest" \
+            --set-secrets "/secrets/github-private-key=github-private-key:latest" \
+            --set-env-vars "LOG_LEVEL=INFO,GITHUB_PRIVATE_KEY_PATH=/secrets/github-private-key" \
+            --tag ${{ github.ref_name }}
+
+      - name: Get service URL
+        run: |
+          URL=$(gcloud run services describe axyloid-bots \
+            --region us-central1 \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --format='value(status.url)')
+          echo "Service deployed to: $URL"
+          echo "service_url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Smoke test
+        run: |
+          URL=$(gcloud run services describe axyloid-bots \
+            --region us-central1 \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --format='value(status.url)')
+
+          # Hit the health endpoint to confirm the new revision is live
+          for i in {1..10}; do
+            if curl -sf "$URL/health" > /dev/null; then
+              echo "health check passed"
+              exit 0
+            fi
+            echo "attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "health check failed after 10 attempts"
+          exit 1

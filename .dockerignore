@@ -1,10 +1,15 @@
-# Skip everything that doesn't need to be in the image
+# Skip git history and CI configs — not needed in the image
 .git/
 .github/
 .gitignore
 .dockerignore
-README.md
+
+# Skip license from the build context (not needed at runtime)
 LICENSE
+
+# README.md is NOT in this list — hatchling needs it during pip install.
+# Even though we don't ship it in the runtime stage, it must be in the
+# build context for the metadata generation step to succeed.
 
 # Dev artifacts
 __pycache__/
@@ -23,10 +28,13 @@ tests/
 # Action wrapper only used in CI
 action/
 
+# Deployment scripts only used outside the container
+deploy/
+
 # Local secrets — extra defense in depth
 .env*
 *.pem
-.venv/secrets/secrets/
+secrets/
 service-account-*.json
 
 # Editor / OS

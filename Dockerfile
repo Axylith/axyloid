@@ -1,6 +1,3 @@
-FROM ubuntu:latest
-LABEL authors="Phosphor-cell"
-
 # Multi-stage build: keeps the final image small (~150MB)
 # Stage 1: build the dependencies
 FROM python:3.11-slim AS builder
@@ -14,8 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy just the project metadata first for better layer caching
-COPY pyproject.toml ./
+# Copy project metadata + README (hatchling reads README during pip install)
+COPY pyproject.toml README.md ./
 COPY core/ ./core/
 COPY cli/ ./cli/
 COPY server/ ./server/

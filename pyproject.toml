@@ -2,7 +2,7 @@
 name = "axyloid"
 version = "0.1.0"
 description = "Maintainer automation toolkit for the Axylith ecosystem"
-readme = "README.md"
+readme = {text = "Maintainer automation toolkit for the Axylith ecosystem", content-type = "text/plain"}
 license = { text = "Apache-2.0" }
 authors = [
     { name = "Axylith", email = "hi@axylith.com" }
