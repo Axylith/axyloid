@@ -1,0 +1,1 @@
+"""Hosted GitHub App mode. FastAPI server receiving webhook events."""

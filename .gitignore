@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.cache
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Tooling
+.ruff_cache/
+.mypy_cache/
+
+# Local secrets — these should NEVER be committed
+.env
+.env.local
+*.pem
+.venv/secrets/secrets/
+service-account-*.json
+
+# Cloud
+.gcloud/
+
+# Logs
+*.log
+logs/
+
+# Generated SVGs from local testing (production outputs go elsewhere)
+test-output/
+*.svg.tmp
+
+secrets

@@ -1,0 +1,57 @@
+name: 'Axyloid'
+description: 'Maintainer automation bots for the Axylith ecosystem'
+author: 'Axylith'
+branding:
+  icon: 'cpu'
+  color: 'orange'
+
+inputs:
+  bot:
+    description: 'Which bot to run: stats, axl-diff, validate-roadmap'
+    required: true
+  scope:
+    description: 'For the stats bot: user or repo'
+    required: false
+    default: 'repo'
+  username:
+    description: 'GitHub username (stats user scope only)'
+    required: false
+  owner:
+    description: 'Repository owner (stats repo scope; defaults to context)'
+    required: false
+  repo:
+    description: 'Repository name (stats repo scope; defaults to context)'
+    required: false
+  output:
+    description: 'Output file path (where to write the SVG)'
+    required: false
+    default: '.github/assets/stats.svg'
+  token:
+    description: 'GitHub token. Defaults to GITHUB_TOKEN.'
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install axyloid
+      shell: bash
+      run: |
+        pip install --quiet "git+https://github.com/Axylith/axyloid.git@${{ github.action_ref || 'main' }}"
+
+    - name: Run bot
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        AXYLOID_BOT: ${{ inputs.bot }}
+        AXYLOID_SCOPE: ${{ inputs.scope }}
+        AXYLOID_USERNAME: ${{ inputs.username }}
+        AXYLOID_OWNER: ${{ inputs.owner || github.repository_owner }}
+        AXYLOID_REPO: ${{ inputs.repo || github.event.repository.name }}
+        AXYLOID_OUTPUT: ${{ inputs.output }}
+      run: ${{ github.action_path }}/entrypoint.sh

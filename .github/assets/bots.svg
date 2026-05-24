@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260" width="900" height="260" role="img" aria-label="The bots in axyloid">
+    <defs>
+        <linearGradient id="bg-roster" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0d0e10"/>
+            <stop offset="100%" stop-color="#13151a"/>
+        </linearGradient>
+        <linearGradient id="acc-roster" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#c89858"/>
+            <stop offset="100%" stop-color="#b88848"/>
+        </linearGradient>
+        <pattern id="grid-roster" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1f2126" stroke-width="0.5"/>
+        </pattern>
+    </defs>
+
+    <rect width="900" height="260" fill="url(#bg-roster)" rx="6"/>
+    <rect width="900" height="260" fill="url(#grid-roster)" opacity="0.4"/>
+
+    <text x="30" y="32" font-family="JetBrains Mono, monospace" font-size="10" fill="#5a5249" letter-spacing="2">
+        BOTS IN THE SUITE
+    </text>
+    <line x1="30" y1="42" x2="870" y2="42" stroke="#2a2d34" stroke-width="1"/>
+
+    <g font-family="JetBrains Mono, monospace">
+
+        <!-- Bot 1: stats — ACTIVE -->
+        <g transform="translate(30, 60)">
+            <rect width="270" height="180" rx="4" fill="#16181c" stroke="url(#acc-roster)" stroke-width="1"/>
+            <text x="16" y="26" font-size="14" fill="#e8dcc8" font-weight="500">stats</text>
+            <text x="80" y="26" font-size="9" fill="#c89858" letter-spacing="1.5">● ACTIVE</text>
+
+            <line x1="16" y1="36" x2="254" y2="36" stroke="#2a2d34" stroke-width="0.5"/>
+
+            <text x="16" y="56" font-size="11" fill="#8b8275">Live SVG badges of GitHub</text>
+            <text x="16" y="72" font-size="11" fill="#8b8275">activity (commits, PRs, stars,</text>
+            <text x="16" y="88" font-size="11" fill="#8b8275">languages) for users and repos.</text>
+
+            <text x="16" y="116" font-size="9" fill="#5a5249" letter-spacing="1">TRIGGERS</text>
+            <text x="16" y="132" font-size="10" fill="#a8a098">scheduled · workflow_dispatch</text>
+
+            <text x="16" y="152" font-size="9" fill="#5a5249" letter-spacing="1">OUTPUT</text>
+            <text x="16" y="168" font-size="10" fill="#a8a098">.github/assets/stats.svg</text>
+        </g>
+
+        <!-- Bot 2: axl-diff — PLANNED -->
+        <g transform="translate(315, 60)">
+            <rect width="270" height="180" rx="4" fill="#16181c" stroke="#3a3d44" stroke-width="1"/>
+            <text x="16" y="26" font-size="14" fill="#a89878" font-weight="500">axl-diff</text>
+            <text x="100" y="26" font-size="9" fill="#5a5249" letter-spacing="1.5">○ PLANNED</text>
+
+            <line x1="16" y1="36" x2="254" y2="36" stroke="#2a2d34" stroke-width="0.5"/>
+
+            <text x="16" y="56" font-size="11" fill="#8b8275">On PRs touching .axl files,</text>
+            <text x="16" y="72" font-size="11" fill="#8b8275">posts a human-readable diff</text>
+            <text x="16" y="88" font-size="11" fill="#8b8275">comment showing what changed.</text>
+
+            <text x="16" y="116" font-size="9" fill="#5a5249" letter-spacing="1">TRIGGERS</text>
+            <text x="16" y="132" font-size="10" fill="#a8a098">pull_request · file pattern</text>
+
+            <text x="16" y="152" font-size="9" fill="#5a5249" letter-spacing="1">OUTPUT</text>
+            <text x="16" y="168" font-size="10" fill="#a8a098">PR comment (markdown)</text>
+        </g>
+
+        <!-- Bot 3: validate-roadmap — PLANNED -->
+        <g transform="translate(600, 60)">
+            <rect width="270" height="180" rx="4" fill="#16181c" stroke="#3a3d44" stroke-width="1"/>
+            <text x="16" y="26" font-size="14" fill="#a89878" font-weight="500">validate-roadmap</text>
+            <text x="180" y="26" font-size="9" fill="#5a5249" letter-spacing="1.5">○ PLANNED</text>
+
+            <line x1="16" y1="36" x2="254" y2="36" stroke="#2a2d34" stroke-width="0.5"/>
+
+            <text x="16" y="56" font-size="11" fill="#8b8275">Validates roadmap.yml schema</text>
+            <text x="16" y="72" font-size="11" fill="#8b8275">and structural consistency on</text>
+            <text x="16" y="88" font-size="11" fill="#8b8275">every PR that touches it.</text>
+
+            <text x="16" y="116" font-size="9" fill="#5a5249" letter-spacing="1">TRIGGERS</text>
+            <text x="16" y="132" font-size="10" fill="#a8a098">pull_request · roadmap.yml</text>
+
+            <text x="16" y="152" font-size="9" fill="#5a5249" letter-spacing="1">OUTPUT</text>
+            <text x="16" y="168" font-size="10" fill="#a8a098">check status + PR comment</text>
+        </g>
+    </g>
+</svg>

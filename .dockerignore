@@ -1,0 +1,38 @@
+# Skip everything that doesn't need to be in the image
+.git/
+.github/
+.gitignore
+.dockerignore
+README.md
+LICENSE
+
+# Dev artifacts
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage*
+htmlcov/
+.venv/
+venv/
+
+# Tests don't need to ship
+tests/
+
+# Action wrapper only used in CI
+action/
+
+# Local secrets — extra defense in depth
+.env*
+*.pem
+.venv/secrets/secrets/
+service-account-*.json
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+secrets
