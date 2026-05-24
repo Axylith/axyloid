@@ -4,9 +4,8 @@
 #
 # After running this:
 #   1. Create your GitHub App (see README)
-#   2. Update the secret values via `gcloud secrets versions add`
+#   2. Add the secret values via `gcloud secrets versions add`
 #   3. Run deploy.sh to deploy
-
 set -euo pipefail
 
 PROJECT_ID="${GCP_PROJECT_ID:?GCP_PROJECT_ID not set}"
@@ -43,13 +42,42 @@ for secret in github-app-id github-webhook-secret github-private-key; do
         --project "$PROJECT_ID" >/dev/null
 done
 
+echo "→ Granting Cloud Build service account permissions to deploy"
+CLOUDBUILD_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:${CLOUDBUILD_SA}" \
+    --role="roles/run.admin" >/dev/null
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:${CLOUDBUILD_SA}" \
+    --role="roles/iam.serviceAccountUser" >/dev/null
+
 echo ""
-echo "→ Setup complete. Next steps:"
-echo "    1. Create your GitHub App at https://github.com/settings/apps/new"
-echo "    2. Note the App ID and webhook secret"
-echo "    3. Download the App's private key (.pem file)"
-echo "    4. Add them as secret versions:"
-echo "         echo -n \"YOUR_APP_ID\" | gcloud secrets versions add github-app-id --data-file=- --project $PROJECT_ID"
-echo "         echo -n \"YOUR_WEBHOOK_SECRET\" | gcloud secrets versions add github-webhook-secret --data-file=- --project $PROJECT_ID"
-echo "         gcloud secrets versions add github-private-key --data-file=path/to/key.pem --project $PROJECT_ID"
-echo "    5. Run ./deploy/deploy.sh"
+echo "✓ Setup complete. Next steps:"
+echo ""
+echo "  1. Register your GitHub App at:"
+echo "     https://github.com/settings/apps/new"
+echo ""
+echo "  2. From the App's settings page, collect:"
+echo "     - App ID (6-digit number, top of page)"
+echo "     - Webhook secret (the random string you set)"
+echo "     - Private key (.pem file, generate at bottom of page)"
+echo ""
+echo "  3. Add the values as secret versions:"
+echo "     echo -n \"YOUR_APP_ID\" | gcloud secrets versions add github-app-id \\"
+echo "         --data-file=- --project $PROJECT_ID"
+echo ""
+echo "     echo -n \"YOUR_WEBHOOK_SECRET\" | gcloud secrets versions add github-webhook-secret \\"
+echo "         --data-file=- --project $PROJECT_ID"
+echo ""
+echo "     gcloud secrets versions add github-private-key \\"
+echo "         --data-file=path/to/key.pem --project $PROJECT_ID"
+echo ""
+echo "  4. Deploy ONCE via console (first-time only) so secrets/volumes get attached:"
+echo "     - Cloud Run console → axyloid → Edit & Deploy New Revision"
+echo "     - Variables & Secrets: add GITHUB_APP_ID, GITHUB_WEBHOOK_SECRET as secret env vars"
+echo "     - Variables & Secrets: add GITHUB_PRIVATE_KEY_PATH=/secrets/github-private-key/app.pem as plain env"
+echo "     - Volumes: mount github-private-key:latest at /secrets/github-private-key, path app.pem"
+echo "     - Deploy"
+echo ""
+echo "  5. Subsequent deploys: ./deploy/deploy.sh (or push to trigger Cloud Build)"
+echo "     These only update the image — secrets/volumes persist."

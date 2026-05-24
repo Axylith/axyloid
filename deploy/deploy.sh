@@ -1,44 +1,24 @@
 #!/usr/bin/env bash
-# Cloud Run deploy script.
-# Run from the project root: ./deploy/deploy.sh
-#
-# Required environment (set these in your shell or .env before running):
-#   GCP_PROJECT_ID  — your Google Cloud project id
-#   GCP_REGION      — e.g. us-central1
-#
-# Assumes you've already run `gcloud auth login` and created the secrets
-# in Secret Manager (see deploy/setup-once.sh below).
-
 set -euo pipefail
 
 PROJECT_ID="${GCP_PROJECT_ID:?GCP_PROJECT_ID not set}"
 REGION="${GCP_REGION:-us-central1}"
-SERVICE_NAME="axyloid-bots"
+SERVICE_NAME="axyloid"
+IMAGE="us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/$SERVICE_NAME:latest"
 
-echo "→ Project: $PROJECT_ID"
-echo "→ Region:  $REGION"
-echo "→ Service: $SERVICE_NAME"
-echo ""
+echo "→ Building image: $IMAGE"
+gcloud builds submit \
+    --tag "$IMAGE" \
+    --project "$PROJECT_ID"
 
-echo "→ Building and deploying via gcloud (one command, no manual Docker push)"
-gcloud run deploy "$SERVICE_NAME" \
-    --source . \
-    --project "$PROJECT_ID" \
+echo "→ Updating service $SERVICE_NAME with new image (preserves env/secrets/volumes)"
+gcloud run services update "$SERVICE_NAME" \
+    --image "$IMAGE" \
     --region "$REGION" \
-    --platform managed \
-    --allow-unauthenticated \
-    --memory 512Mi \
-    --cpu 1 \
-    --timeout 60 \
-    --concurrency 80 \
-    --max-instances 5 \
-    --min-instances 0 \
-    --set-secrets "GITHUB_APP_ID=github-app-id:latest,GITHUB_WEBHOOK_SECRET=github-webhook-secret:latest" \
-    --set-secrets "GITHUB_PRIVATE_KEY_PATH=/secrets/github-private-key:latest" \
-    --update-env-vars "LOG_LEVEL=INFO"
+    --project "$PROJECT_ID"
 
 echo ""
-echo "→ Deployment complete"
+echo "✓ Deployment complete"
 gcloud run services describe "$SERVICE_NAME" \
     --project "$PROJECT_ID" \
     --region "$REGION" \
