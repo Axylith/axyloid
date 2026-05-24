@@ -1,5 +1,5 @@
 # Multi-stage build: keeps the final image small (~150MB)
-FROM python:3.11-slim AS builder
+FROM python:3.14-slim AS builder
 
 WORKDIR /build
 
@@ -17,7 +17,7 @@ COPY server/ ./server/
 RUN pip install --no-cache-dir --prefix=/install .
 
 # Stage 2: minimal runtime
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 RUN useradd --create-home --shell /bin/bash axyloid
 
